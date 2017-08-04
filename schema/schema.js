@@ -3,6 +3,7 @@ const _ = require('lodash');
 const axios = require('axios');
 const {
   GraphQLObjectType,
+  GraphQLNonNull,
   GraphQLString,
   GraphQLInt,
   GraphQLList,
@@ -71,6 +72,27 @@ const RootQuery = new GraphQLObjectType({
   }
 });
 
+const mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addUser: {
+      type: UserType,
+      args: {
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        age: { type: new GraphQLNonNull(GraphQLInt) },
+        companyId: { type: GraphQLString }
+      },
+      async resolve(parentValue, { firstName, age }) {
+        return await axios.post('http://localhost:3000/users', {
+          firstName,
+          age
+        });
+      }
+    }
+  }
+});
+
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation
 });
